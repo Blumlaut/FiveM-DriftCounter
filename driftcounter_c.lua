@@ -1,12 +1,8 @@
-local vehicle
-local modo = 0.01
 local score = 0
 local screenScore = 0
 local tick
 local idleTime
-local multTime
 local driftTime
-local amber = {255,191,0,255}
 local tablemultiplier = {350,1400,4200,11200}
 local mult = 0.2
 local previous = 0
