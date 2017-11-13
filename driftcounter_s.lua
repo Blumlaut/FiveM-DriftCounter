@@ -1,5 +1,5 @@
 
-local usePayout = true -- weither or not to pay out drifts.
+local usePayout = false -- weither or not to pay out drifts.
 local useFramework = "Native" -- either 'ES' or 'Native', anyone who reads this, please add VRP support since i cannot be bothered working with that sad excuse of an API.
 
 Citizen.CreateThread(function()
