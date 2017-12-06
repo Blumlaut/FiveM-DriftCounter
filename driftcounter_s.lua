@@ -20,12 +20,10 @@ end)
 
 -- version check code, don't change this thanks
 
-
+updatePath = "/Bluethefurry/FiveM-DriftCounter"
+resourceName = "Drift Counter ("..GetCurrentResourceName()..")"
 function checkVersion(err,responseText, headers)
 	curVersion = LoadResourceFile(GetCurrentResourceName(), "version")
-
-	updatePath = "/Bluethefurry/FiveM-DriftCounter"
-	resourceName = "Drift Counter ("..GetCurrentResourceName()..")"
 
 	if curVersion ~= responseText and tonumber(curVersion) < tonumber(responseText) then
 		print("\n###############################")
