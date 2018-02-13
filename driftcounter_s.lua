@@ -27,7 +27,7 @@ function checkVersion(err,responseText, headers)
 
 	if curVersion ~= responseText and tonumber(curVersion) < tonumber(responseText) then
 		print("\n###############################")
-		print("\n"..resourceName.." is outdated, should be:\n"..responseText.."is:\n"..curVersion.."\nplease update it from https://github.com"..updatePath.."")
+		print("\n"..resourceName.." is outdated, should be:\n"..responseText.."\nis:\n"..curVersion.."\nplease update it from https://github.com"..updatePath.."")
 		print("\n###############################")end
 	SetTimeout(3600000, checkVersionHTTPRequest)	
 end
