@@ -130,7 +130,7 @@ Citizen.CreateThread( function()
 			end
 		end
 		if not screenScore then screenScore = 0 end
-		DrawHudText(string.format("\n+%q",tostring(screenScore)), {255,191,0,curAlpha},0.5,0.0,0.7,0.7)
+		DrawHudText(string.format("\n+%s",tostring(screenScore)), {255,191,0,curAlpha},0.5,0.0,0.7,0.7)
 
 	end
 end)
