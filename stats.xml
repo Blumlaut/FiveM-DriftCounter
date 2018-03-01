@@ -1,0 +1,5 @@
+<StatsSetup version="1">
+  <stats>
+		<stat Name="DRIFT_SCORE"          Type="int"    SaveCategory="1"   online="true"  profile="true"    Owner="script"   characterStat="true"  Comment="number of drift score accumulated by the client" />
+  </stats>
+</StatsSetup>
