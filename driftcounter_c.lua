@@ -91,6 +91,7 @@ Citizen.CreateThread( function()
 				cash = previous/400
 				cash = round(cash)
 				TriggerServerEvent("driftcounter:payDrift", cash )
+				TriggerEvent("driftcounter:DriftFinished", previous)
 				_,oldScore = StatGetInt("MP0_DRIFT_SCORE",-1)
 				StatSetInt("MP0_DRIFT_SCORE", oldScore+previous, true)
 				score = 0
