@@ -1,6 +1,13 @@
+local UseGlobalScore = GetConvar("DriftC_useGlobalScore", "true") -- Allow user to have the same score as the one they had on another server
+local usePayout = GetConvar("DriftC_usePayout", "false") -- wether or not to pay out drifts.
+local useFramework = GetConvar("DriftC_useFramework", "Native") -- either 'ES' or 'Native', anyone who reads this, please add VRP support since i cannot be bothered working with that sad excuse of an API.
 
-local usePayout = false -- weither or not to pay out drifts.
-local useFramework = "Native" -- either 'ES' or 'Native', anyone who reads this, please add VRP support since i cannot be bothered working with that sad excuse of an API.
+local SaveAtEndOfDrift = GetConvar("DriftC_SaveAtEndOfDrift", "true") -- Set to false if you only want to save every `x` ms
+local SaveTime = GetConvar("DriftC_SaveTime", 60000) -- How often you want to save if SaveAtEndOfDrift is false (In ms!)
+
+if UseGlobalScore == "true" then UseGlobalScore = true else UseGlobalScore = false end
+if usePayout == "true" then usePayout = true else usePayout = false end
+if SaveAtEndOfDrift == "true" then SaveAtEndOfDrift = true else SaveAtEndOfDrift = false end
 
 Citizen.CreateThread(function()
 	RegisterServerEvent("driftcounter:payDrift")
@@ -16,6 +23,53 @@ Citizen.CreateThread(function()
 		end
 		
 	end)
+end)
+
+Citizen.CreateThread(function()	
+	RegisterNetEvent("RequestConfig")
+	AddEventHandler("RequestConfig", function()
+		TriggerClientEvent("RecieveConfig", source, SaveAtEndOfDrift, SaveTime)
+	end)
+	
+	if UseGlobalScore then
+		
+		RegisterNetEvent("SaveScore")
+		AddEventHandler("SaveScore", function(client, data)
+			UpdatePlayerInDB(client, data)
+		end)
+		
+		RegisterNetEvent("LoadScoreData")
+		AddEventHandler("LoadScoreData", function()
+			GetPlayerInfo(source)
+		end)
+
+		function GetPlayerInfo(client)
+			PerformHttpRequest('https://drift-counter-scores.firebaseio.com/scores.json', function(statusCode, text, headers)
+				if text then
+					local info = json.decode(text)
+					for _,users in pairs(info) do
+						if GetPlayerIdentifier(client, 0) == users.identifier then
+							TriggerClientEvent("LoadScore", client, users.score)
+						else
+							CreatePlayerInDB(client)
+							TriggerClientEvent("LoadScore", client, users.score)
+						end
+					end
+				end
+			end, 'GET', json.encode({}), { ["Content-Type"] = 'application/json' })
+		end
+
+		function UpdatePlayerInDB(client, data)
+			PerformHttpRequest('https://drift-counter-scores.firebaseio.com/scores/'..GetPlayerIdentifier(client,0)..'.json', function(statusCode, text, headers)
+				
+			end, 'PATCH', '{"score":'..data.score..',"username":"'..GetPlayerName(client)..'"}', { ["Content-Type"] = 'application/json' })
+		end
+
+		function CreatePlayerInDB(client)
+			PerformHttpRequest('https://drift-counter-scores.firebaseio.com/scores/'..GetPlayerIdentifier(client,0)..'.json', function(statusCode, text, headers)
+			end, 'PUT', '{"identifier":"'..GetPlayerIdentifier(client,0)..'","score":0,"username" : "'..GetPlayerName(client)..'"}', { ["Content-Type"] = 'application/json' })
+		end
+	end
 end)
 
 -- version check code, don't change this thanks

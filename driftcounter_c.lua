@@ -9,8 +9,46 @@ local previous = 0
 local total = 0
 local curAlpha = 0
 
+local SaveAtEndOfDrift = nil
+local SaveTime = nil
 
 Citizen.CreateThread( function()
+	
+	-- Save/Load functions -- 
+	TriggerServerEvent("RequestConfig")
+	
+	RegisterNetEvent("RecieveConfig")
+	AddEventHandler("RecieveConfig", function(SaveAtEndOfDriftS, SaveTimeS)
+		SaveAtEndOfDrift = SaveAtEndOfDriftS
+		SaveTime = SaveTimeS
+	end)
+	
+	if not SaveAtEndOfDrift then
+		SetTimeout(SaveTime, SaveScore)
+	end
+	
+	RegisterNetEvent("LoadScore")
+	AddEventHandler("LoadScore", function(PlayerSavedScore)
+		StatSetInt("MP0_DRIFT_SCORE", PlayerSavedScore, true)
+		print("Score set to "..PlayerSavedScore)
+		data = {score = PlayerSavedScore}
+		TriggerServerEvent("SaveScore", GetPlayerServerId(PlayerId()), data)
+	end)	
+	
+	function SaveScore()
+		_,PlayerScore = StatGetInt("MP0_DRIFT_SCORE", -1)
+		TriggerServerEvent("SaveScore", PlayerScore)
+		SetTimeout(SaveTime, SaveScore)
+	end
+	
+	local FirstTime = true
+	AddEventHandler("playerSpawned", function()
+		if FirstTime then
+			TriggerServerEvent("LoadScoreData")
+			FirstTime = false
+		end
+	end)
+	
 	
 	-- PREP FUNCTIONS --
 	
@@ -94,6 +132,9 @@ Citizen.CreateThread( function()
 				TriggerEvent("driftcounter:DriftFinished", previous)
 				_,oldScore = StatGetInt("MP0_DRIFT_SCORE",-1)
 				StatSetInt("MP0_DRIFT_SCORE", oldScore+previous, true)
+				_,newScore = StatGetInt("MP0_DRIFT_SCORE",-1)
+				local data = {score = newScore}
+				TriggerServerEvent("SaveScore", GetPlayerServerId(PlayerId()), data) 
 				score = 0
 			end
 			if angle ~= 0 then
