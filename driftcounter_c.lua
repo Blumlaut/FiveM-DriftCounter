@@ -23,6 +23,12 @@ Citizen.CreateThread( function()
 		SaveTime = SaveTimeS
 	end)
 	
+	function SaveScore()
+		_,PlayerScore = StatGetInt("MP0_DRIFT_SCORE", -1)
+		TriggerServerEvent("SaveScore", PlayerScore)
+		SetTimeout(SaveTime, SaveScore)
+	end
+	
 	if not SaveAtEndOfDrift then
 		SetTimeout(SaveTime, SaveScore)
 	end
@@ -35,11 +41,6 @@ Citizen.CreateThread( function()
 		TriggerServerEvent("SaveScore", GetPlayerServerId(PlayerId()), data)
 	end)	
 	
-	function SaveScore()
-		_,PlayerScore = StatGetInt("MP0_DRIFT_SCORE", -1)
-		TriggerServerEvent("SaveScore", PlayerScore)
-		SetTimeout(SaveTime, SaveScore)
-	end
 	
 	local FirstTime = true
 	AddEventHandler("playerSpawned", function()
