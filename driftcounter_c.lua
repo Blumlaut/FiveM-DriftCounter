@@ -17,21 +17,20 @@ Citizen.CreateThread( function()
 	-- Save/Load functions -- 
 	TriggerServerEvent("RequestConfig")
 	
-	RegisterNetEvent("RecieveConfig")
-	AddEventHandler("RecieveConfig", function(SaveAtEndOfDriftS, SaveTimeS)
-		SaveAtEndOfDrift = SaveAtEndOfDriftS
-		SaveTime = SaveTimeS
-	end)
-	
 	function SaveScore()
 		_,PlayerScore = StatGetInt("MP0_DRIFT_SCORE", -1)
 		TriggerServerEvent("SaveScore", PlayerScore)
 		SetTimeout(SaveTime, SaveScore)
-	end
-	
-	if not SaveAtEndOfDrift then
-		SetTimeout(SaveTime, SaveScore)
-	end
+	end	
+		
+	RegisterNetEvent("RecieveConfig")
+	AddEventHandler("RecieveConfig", function(SaveAtEndOfDriftS, SaveTimeS)
+		SaveAtEndOfDrift = SaveAtEndOfDriftS
+		SaveTime = SaveTimeS
+		if not SaveAtEndOfDrift then
+			SetTimeout(SaveTime, SaveScore)
+		end
+	end)
 	
 	RegisterNetEvent("LoadScore")
 	AddEventHandler("LoadScore", function(PlayerSavedScore)
