@@ -56,7 +56,7 @@ Citizen.CreateThread(function()
 					end
 					if not UserFound then
 						CreatePlayerInDB(client)
-						TriggerClientEvent("LoadScore", client, users.score)
+						TriggerClientEvent("LoadScore", client, 0)
 					end
 				end
 			end, 'GET', json.encode({}), { ["Content-Type"] = 'application/json' })
