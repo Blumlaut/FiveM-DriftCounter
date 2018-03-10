@@ -44,20 +44,13 @@ Citizen.CreateThread(function()
 		end)
 
 		function GetPlayerInfo(client)
-			PerformHttpRequest('https://drift-counter-scores.firebaseio.com/scores.json', function(statusCode, text, headers)
-				if text then
-					local info = json.decode(text)
-					local UserFound = false
-					for _,users in pairs(info) do
-						if GetPlayerIdentifier(client, 0) == users.identifier then
-							TriggerClientEvent("LoadScore", client, users.score)
-							UserFound = true
-						end
-					end
-					if not UserFound then
-						CreatePlayerInDB(client)
-						TriggerClientEvent("LoadScore", client, 0)
-					end
+			PerformHttpRequest('https://drift-counter-scores.firebaseio.com/scores/'..GetPlayerIdentifier(client,0)..'.json', function(statusCode, text, headers)
+				if text == "null" then
+					CreatePlayerInDB(client)
+					TriggerClientEvent("LoadScore", client, 0)
+				else
+					local user = json.decode(text)
+					TriggerClientEvent("LoadScore", client, user.score)
 				end
 			end, 'GET', json.encode({}), { ["Content-Type"] = 'application/json' })
 		end
