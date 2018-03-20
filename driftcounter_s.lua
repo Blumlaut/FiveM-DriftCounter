@@ -33,57 +33,65 @@ Citizen.CreateThread(function()
 	
 	if UseGlobalScore then
 		
+		local ServersOnline = true
+		
 		PerformHttpRequest('https://services.illusivetea.me/driftcounter-storage', function(statusCode, text, headers)
 			if text ~= nil and statusCode == 200 then
 				print(GetCurrentResourceName()..": Services are online! Global database is available!")
+				ServersOnline = true
 			else
-				print("\n"..GetCurrentResourceName().." Error: Could not reach the service. Code: "..statusCode.."\nMake sure https://services.illusivetea.me/driftcounter-storage is accessable by your server.\nGlobal database will not be available.")
+				ServersOnline = false
+				print("\n"..GetCurrentResourceName().." Error: Could not reach the service. Code: "..statusCode.."\nMake sure https://services.illusivetea.me/driftcounter-storage is accessable by your server.\nTo prevent errors, global database will not be available.")
 			end
 		end, 'GET', json.encode({}), { ["Content-Type"] = 'application/json' })
 		
-		RegisterNetEvent("SaveScore")
-		AddEventHandler("SaveScore", function(client, data)
-			UpdatePlayerInDB(client, data)
-		end)
-		
-		RegisterNetEvent("LoadScoreData")
-		AddEventHandler("LoadScoreData", function()
-			GetPlayerInfo(source)
-		end)
-		
-		
-		function GetPlayerInfo(client)
-			PerformHttpRequest('https://services.illusivetea.me/driftcounter-storage', function(statusCode, text, headers)
-				if text ~= nil and statusCode == 200 then
-					local data = json.decode(text)
-					local foundUser = false
-					for _,info in pairs(data["data"]) do
-						if GetPlayerIdentifier(client,0) == info["identifier"] then
-							foundUser = true
-							return
+		if ServersOnline then
+			print("Servers are online")
+			
+			RegisterNetEvent("SaveScore")
+			AddEventHandler("SaveScore", function(client, data)
+				UpdatePlayerInDB(client, data)
+			end)
+			
+			RegisterNetEvent("LoadScoreData")
+			AddEventHandler("LoadScoreData", function()
+				GetPlayerInfo(source)
+			end)
+			
+			
+			function GetPlayerInfo(client)
+				PerformHttpRequest('https://services.illusivetea.me/driftcounter-storage', function(statusCode, text, headers)
+					if text ~= nil and statusCode == 200 then
+						local data = json.decode(text)
+						local foundUser = false
+						for _,info in pairs(data["data"]) do
+							if GetPlayerIdentifier(client,0) == info["identifier"] then
+								foundUser = true
+								TriggerClientEvent("LoadScore", client, info.score)
+							end
 						end
+						
+						if not foundUser then
+							CreatePlayerInDB(client)
+						end
+					else
+						print("Error occued. statusCode: "..statusCode)
 					end
+				end, 'GET', json.encode({}), { ["Content-Type"] = 'application/json' })
+			end
+
+
+			function UpdatePlayerInDB(client, data)
+				PerformHttpRequest('https://services.illusivetea.me/driftcounter-storage?identifier='..GetPlayerIdentifier(client,0), function(statusCode, text, headers)
 					
-					if not foundUser then
-						CreatePlayerInDB(client)
-					end
-				else
-					print("Error occued. statusCode: "..statusCode)
-				end
-			end, 'GET', json.encode({}), { ["Content-Type"] = 'application/json' })
-		end
+				end, 'PATCH', '{"score":'..data.score..',"username":"'..GetPlayerName(client)..'"}', { ["Content-Type"] = 'application/json' })
+			end
 
-
-		function UpdatePlayerInDB(client, data)
-			PerformHttpRequest('https://services.illusivetea.me/driftcounter-storage?identifier='..GetPlayerIdentifier(client,0), function(statusCode, text, headers)
-				
-			end, 'PATCH', '{"score":'..data.score..',"username":"'..GetPlayerName(client)..'"}', { ["Content-Type"] = 'application/json' })
-		end
-
-		function CreatePlayerInDB(client)
-			PerformHttpRequest('https://services.illusivetea.me/driftcounter-storage', function(statusCode, text, headers)
-				
-			end, 'POST', '{"identifier":"'..GetPlayerIdentifier(client,0)..'","score":0,"username" : "'..GetPlayerName(client)..'"}', { ["Content-Type"] = 'application/json' })
+			function CreatePlayerInDB(client)
+				PerformHttpRequest('https://services.illusivetea.me/driftcounter-storage', function(statusCode, text, headers)
+					
+				end, 'POST', '{"identifier":"'..GetPlayerIdentifier(client,0)..'","score":0,"username" : "'..GetPlayerName(client)..'"}', { ["Content-Type"] = 'application/json' })
+			end
 		end
 	end
 end)
