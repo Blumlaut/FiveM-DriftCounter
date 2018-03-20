@@ -46,7 +46,6 @@ Citizen.CreateThread(function()
 		end, 'GET', json.encode({}), { ["Content-Type"] = 'application/json' })
 		
 		if ServersOnline then
-			print("Servers are online")
 			
 			RegisterNetEvent("SaveScore")
 			AddEventHandler("SaveScore", function(client, data)
