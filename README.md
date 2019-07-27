@@ -1,4 +1,6 @@
 # FiveM-DriftCounter
+## Need Help or want to follow my releases? Join the Support Discord: https://discord.gg/UbsYrKx
+
 
 **Note: this script is licensed under "[No License](https://choosealicense.com/no-license/)", you are allowed to:**
 
